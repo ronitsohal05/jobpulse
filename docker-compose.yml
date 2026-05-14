@@ -1,0 +1,101 @@
+services:
+  postgres:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-jobpulse}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-jobpulse}
+      POSTGRES_DB: ${POSTGRES_DB:-jobpulse}
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  redis:
+    image: redis:7
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  backend:
+    build:
+      context: ./backend
+    env_file:
+      - ./.env
+    ports:
+      - "8000:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    volumes:
+      - ./backend:/app
+      - ./infra:/app/infra:ro
+      - backenddata:/app/data
+
+  frontend:
+    build:
+      context: ./frontend
+    environment:
+      NEXT_PUBLIC_API_BASE_URL: ${NEXT_PUBLIC_API_BASE_URL:-http://localhost:8000}
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+
+  worker:
+    build:
+      context: ./backend
+    env_file:
+      - ./.env
+    # RQ defaults to localhost:6379; inside Compose Redis is the `redis` service.
+    command:
+      [
+        "rq",
+        "worker",
+        "-u",
+        "${REDIS_URL:-redis://redis:6379/0}",
+        "jobpulse",
+      ]
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    volumes:
+      - ./backend:/app
+      - ./infra:/app/infra:ro
+      - backenddata:/app/data
+
+  crawl-scheduler:
+    build:
+      context: ./backend
+    env_file:
+      - ./.env
+    command: ["python", "-m", "app.workers.crawl_scheduler"]
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    volumes:
+      - ./backend:/app
+      - ./infra:/app/infra:ro
+      - backenddata:/app/data
+
+volumes:
+  pgdata:
+  backenddata:
+
