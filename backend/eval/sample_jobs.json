@@ -1,0 +1,56 @@
+{
+  "jobs": [
+    {
+      "id": "job1",
+      "title": "Backend Software Engineer",
+      "company": "Acme",
+      "location": "Remote",
+      "description": "Build APIs with Python and FastAPI. Work with PostgreSQL, Redis, and Docker. Experience with AWS is a plus.",
+      "skills": ["Python", "FastAPI", "PostgreSQL", "Redis", "Docker", "AWS"],
+      "category": "backend"
+    },
+    {
+      "id": "job2",
+      "title": "Frontend Engineer",
+      "company": "Beta",
+      "location": "New York, NY",
+      "description": "Develop user interfaces using React, TypeScript, and Next.js. Collaborate with design and product.",
+      "skills": ["React", "TypeScript", "Next.js"],
+      "category": "frontend"
+    },
+    {
+      "id": "job3",
+      "title": "Machine Learning Engineer",
+      "company": "Gamma AI",
+      "location": "San Francisco, CA",
+      "description": "Train and deploy models with PyTorch. Build data pipelines in Python. Familiarity with Kubernetes and MLOps is helpful.",
+      "skills": ["Python", "PyTorch", "Kubernetes"],
+      "category": "machine_learning"
+    },
+    {
+      "id": "job4",
+      "title": "Data Scientist",
+      "company": "Delta",
+      "location": "Remote",
+      "description": "Analyze datasets with pandas, NumPy, and scikit-learn. Build forecasting and classification models and communicate insights.",
+      "skills": ["Python", "Pandas", "NumPy", "scikit-learn"],
+      "category": "data_science"
+    },
+    {
+      "id": "job5",
+      "title": "DevOps Engineer",
+      "company": "Epsilon",
+      "location": "Austin, TX",
+      "description": "Own CI/CD, infrastructure as code with Terraform, and container orchestration with Kubernetes. Experience with AWS required.",
+      "skills": ["CI/CD", "Terraform", "Kubernetes", "AWS", "Docker"],
+      "category": "devops"
+    }
+  ],
+  "queries": [
+    { "id": "q1", "text": "python fastapi backend api postgres", "relevant_categories": ["backend"] },
+    { "id": "q2", "text": "react typescript nextjs frontend", "relevant_categories": ["frontend"] },
+    { "id": "q3", "text": "pytorch ml kubernetes mlops", "relevant_categories": ["machine_learning"] },
+    { "id": "q4", "text": "terraform kubernetes aws cicd", "relevant_categories": ["devops"] }
+  ]
+}
+

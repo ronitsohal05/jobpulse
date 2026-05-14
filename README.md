@@ -26,5 +26,3 @@ docker compose up --build
 - `frontend/`: Next.js + Tailwind + (later) shadcn/ui
 - `backend/`: FastAPI + Postgres + FAISS (local vector search)
 - `infra/`: docker, configs (crawler sources, etc.)
-- `notebooks/`: evaluation + analysis notebooks
-

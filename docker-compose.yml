@@ -15,6 +15,16 @@ services:
       timeout: 5s
       retries: 20
 
+  redis:
+    image: redis:7
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
   backend:
     build:
       context: ./backend
@@ -25,8 +35,12 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+      redis:
+        condition: service_healthy
     volumes:
       - ./backend:/app
+      - ./infra:/app/infra:ro
+      - backenddata:/app/data
 
   frontend:
     build:
@@ -41,6 +55,47 @@ services:
       - ./frontend:/app
       - /app/node_modules
 
+  worker:
+    build:
+      context: ./backend
+    env_file:
+      - ./.env
+    # RQ defaults to localhost:6379; inside Compose Redis is the `redis` service.
+    command:
+      [
+        "rq",
+        "worker",
+        "-u",
+        "${REDIS_URL:-redis://redis:6379/0}",
+        "jobpulse",
+      ]
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    volumes:
+      - ./backend:/app
+      - ./infra:/app/infra:ro
+      - backenddata:/app/data
+
+  crawl-scheduler:
+    build:
+      context: ./backend
+    env_file:
+      - ./.env
+    command: ["python", "-m", "app.workers.crawl_scheduler"]
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    volumes:
+      - ./backend:/app
+      - ./infra:/app/infra:ro
+      - backenddata:/app/data
+
 volumes:
   pgdata:
+  backenddata:
 
